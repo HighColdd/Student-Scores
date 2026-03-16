@@ -370,5 +370,36 @@
 
         document.addEventListener('DOMContentLoaded', loadSubjectDropdown);
     </script>
+    <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDMLhdV9Uux2GcPVtAuYQwh5fwpI3E1Vl8",
+  authDomain: "student-scores-a4bc8.firebaseapp.com",
+  projectId: "student-scores-a4bc8"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// บันทึกคะแนน
+async function saveScore(name, score) {
+  await addDoc(collection(db, "scores"), {
+    name: name,
+    score: score
+  });
+}
+
+// อ่านคะแนน
+async function loadScores() {
+  const querySnapshot = await getDocs(collection(db, "scores"));
+  querySnapshot.forEach((doc) => {
+    console.log(doc.data());
+  });
+}
+
+</script>
 </body>
 </html>
