@@ -401,5 +401,27 @@ async function loadScores() {
 }
 
 </script>
+    <script>
+    async function saveScore() {
+
+  const name = document.getElementById("name").value;
+  const score = document.getElementById("score").value;
+
+  try {
+
+    await addDoc(collection(db, "scores"), {
+      name: name,
+      score: Number(score),
+      createdAt: new Date()
+    });
+
+    alert("บันทึกคะแนนสำเร็จ");
+
+  } catch (error) {
+    console.error("Error adding document:", error);
+  }
+
+}
+        </script>
 </body>
 </html>
