@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>บันทึกคะแนน | Teacher Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base Styles reused */
+        :root {
+            --primary-color: #4A90E2;
+            --primary-light: #6AB0F3;
+            --secondary-color: #50E3C2;
+            --dark-color: #2C3E50;
+            --light-color: #F5F7FA;
+            --white: #FFFFFF;
+            --danger: #E74C3C;
+            --success: #2ECC71;
+            --warning: #F1C40F;
+            --gray: #95A5A6;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --transition: all 0.3s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Kanit', sans-serif; }
+        body { background-color: var(--light-color); color: var(--dark-color); display: flex; min-height: 100vh; }
+
+        /* Sidebar Navigation */
+        .sidebar { width: 250px; background: var(--white); box-shadow: var(--shadow); display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 100;}
+        .logo { padding: 2rem 1.5rem; text-align: center; border-bottom: 1px solid #eee; }
+        .logo h2 { color: var(--primary-color); font-size: 1.5rem; font-weight: 600; }
+        .logo i { font-size: 2rem; margin-bottom: 0.5rem; color: var(--secondary-color); }
+        .nav-links { list-style: none; padding: 1.5rem 0; flex-grow: 1; }
+        .nav-link { display: flex; align-items: center; padding: 1rem 1.5rem; color: var(--gray); text-decoration: none; transition: var(--transition); font-weight: 500; }
+        .nav-link i { margin-right: 1rem; width: 20px; text-align: center; font-size: 1.1rem; }
+        .nav-link:hover, .nav-item.active .nav-link { background: rgba(74, 144, 226, 0.1); color: var(--primary-color); border-right: 4px solid var(--primary-color); }
+
+        /* Main Content */
+        .main-content { margin-left: 250px; padding: 2rem; flex-grow: 1; width: calc(100% - 250px); }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; background: var(--white); padding: 1rem 2rem; border-radius: 12px; box-shadow: var(--shadow); }
+        
+        .section-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-end;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .form-group {
+            flex-grow: 1;
+            max-width: 400px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+
+        select.form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            appearance: none;
+            background: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%234A90E2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E") no-repeat right 1rem center;
+            background-size: 12px;
+            background-color: var(--white);
+            cursor: pointer;
+        }
+
+        /* Score Table */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1.2rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            font-weight: 600;
+        }
+
+        /* Score Input specific styling */
+        .score-input {
+            width: 100px;
+            padding: 0.6rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .score-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+        }
+
+        .score-input:invalid {
+            border-color: var(--danger);
+            background-color: rgba(231, 76, 60, 0.05);
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .btn-primary { background: var(--primary-color); color: var(--white); }
+        .btn-primary:hover { background: var(--primary-light); }
+        .btn-large { padding: 1rem 2rem; font-size: 1.1rem; width: 100%; margin-top: 1.5rem;}
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--gray);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #ddd;
+        }
+
+        /* Toast Styles duplicated */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--success);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 1000;
+        }
+
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.error { background: var(--danger); }
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <!-- Sidebar identical -->
+        <div class="logo"><i class="fa-solid fa-graduation-cap"></i><h2>EduScore</h2></div>
+        <ul class="nav-links">
+            <li class="nav-item"><a href="index.html" class="nav-link"><i class="fa-solid fa-house"></i><span>หน้าหลัก</span></a></li>
+            <li class="nav-item"><a href="manage.html" class="nav-link"><i class="fa-solid fa-users"></i><span>จัดการข้อมูลพื้นฐาน</span></a></li>
+            <li class="nav-item active"><a href="score_entry.html" class="nav-link"><i class="fa-solid fa-pen-to-square"></i><span>บันทึกคะแนน</span></a></li>
+            <li class="nav-item"><a href="report.html" class="nav-link"><i class="fa-solid fa-chart-pie"></i><span>ระบบรายงานผล</span></a></li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <div class="header">
+            <h1 class="page-title">บันทึกคะแนนนักเรียน</h1>
+            <div class="user-profile"><span>ยินดีต้อนรับ, คุณครู</span><div class="avatar">T</div></div>
+        </div>
+
+        <div class="section-card">
+            <div class="filter-bar">
+                <div class="form-group">
+                    <label>เลือกรายวิชาที่ต้องการบันทึกคะแนน</label>
+                    <select id="subject-selector" class="form-control" onchange="loadStudentsForSubject()">
+                        <option value="">-- กรุณาเลือกรายวิชา --</option>
+                        <!-- populated via js -->
+                    </select>
+                </div>
+            </div>
+
+            <div id="score-section" style="display: none;">
+                <form id="score-form">
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th width="15%">รหัส</th>
+                                    <th width="60%">ชื่อ - นามสกุล</th>
+                                    <th width="25%" style="text-align: center;">คะแนน (เต็ม 100)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="student-score-list">
+                                <!-- populated via js -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-large">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> บันทึกข้อมูลคะแนนทั้งหมด
+                    </button>
+                </form>
+            </div>
+
+            <div id="empty-selection" class="empty-state">
+                <i class="fa-solid fa-hand-pointer"></i>
+                <h3>กรุณาเลือกรายวิชา</h3>
+                <p>เลือกรายวิชาจากเมนูด้านบนเพื่อเริ่มต้นแก้ไขและบันทึกคะแนน</p>
+            </div>
+        </div>
+    </main>
+
+    <div id="toast" class="toast">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="toast-message"></span>
+    </div>
+
+    <script>
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = message;
+            toast.className = `toast ${isError ? 'error show' : 'show'}`;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Load subjects dropdown
+        async function loadSubjectDropdown() {
+            try {
+                const res = await fetch('api/subjects.php');
+                const data = await res.json();
+                const selector = document.getElementById('subject-selector');
+                
+                if (data.success) {
+                    data.data.forEach(sub => {
+                        const option = document.createElement('option');
+                        option.value = sub.id;
+                        option.textContent = `[${sub.subject_code}] - ${sub.subject_name}`;
+                        selector.appendChild(option);
+                    });
+                }
+            } catch (err) {
+                console.error("Failed to load subjects", err);
+            }
+        }
+
+        // Load students and their existing scores for the selected subject
+        async function loadStudentsForSubject() {
+            const subjectId = document.getElementById('subject-selector').value;
+            const scoreSection = document.getElementById('score-section');
+            const emptyState = document.getElementById('empty-selection');
+            
+            if (!subjectId) {
+                scoreSection.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            try {
+                const res = await fetch(`api/scores.php?subject_id=${subjectId}`);
+                const data = await res.json();
+                
+                if (data.success) {
+                    const tbody = document.getElementById('student-score-list');
+                    tbody.innerHTML = '';
+                    
+                    if(data.data.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="3" class="text-center">ไม่พบข้อมูลนักเรียนในระบบ</td></tr>`;
+                    } else {
+                        data.data.forEach(std => {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td><span class="badge" style="background:#eee;color:#333;">${std.student_code}</span></td>
+                                <td>${std.first_name} ${std.last_name}</td>
+                                <td style="text-align: center;">
+                                    <input type="number" 
+                                        class="score-input" 
+                                        name="score_${std.student_id}" 
+                                        data-studentid="${std.student_id}" 
+                                        min="0" max="100" 
+                                        value="${std.score > 0 ? std.score : ''}"
+                                        placeholder="0">
+                                </td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+                    }
+                    
+                    emptyState.style.display = 'none';
+                    scoreSection.style.display = 'block';
+                }
+            } catch (err) {
+                showToast("ดึงข้อมูลนักเรียนล้มเหลว", true);
+            }
+        }
+
+        // Handle batch save form submission
+        document.getElementById('score-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const subjectId = document.getElementById('subject-selector').value;
+            
+            if (!subjectId) {
+                showToast("กรุณาเลือกวิชาก่อนบันทึก", true);
+                return;
+            }
+
+            const inputs = document.querySelectorAll('.score-input');
+            const scoresToSave = [];
+
+            inputs.forEach(input => {
+                // If empty treat as 0 or ignore based on logic. Let's send what user types, default to 0 if totally empty
+                const scoreValue = input.value === '' ? 0 : parseInt(input.value, 10);
+                scoresToSave.push({
+                    student_id: input.getAttribute('data-studentid'),
+                    score: scoreValue
+                });
+            });
+
+            try {
+                const res = await fetch('api/scores.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        subject_id: subjectId,
+                        scores: scoresToSave
+                    })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    showToast('บันทึกคะแนนลงฐานข้อมูลสำเร็จ!');
+                    // Optionally reload data to show updated grades
+                    loadStudentsForSubject();
+                } else {
+                    showToast(data.error || 'บันทึกคะแนนล้มเหลว', true);
+                }
+            } catch (err) {
+                showToast("ไม่สามารถเชื่อต่อเซิร์ฟเวอร์", true);
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', loadSubjectDropdown);
+    </script>
+</body>
+</html>
