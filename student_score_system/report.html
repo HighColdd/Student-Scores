@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายงานเกรด | Teacher Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base Styles form previous */
+        :root {
+            --primary-color: #4A90E2;
+            --secondary-color: #50E3C2;
+            --dark-color: #2C3E50;
+            --light-color: #F5F7FA;
+            --white: #FFFFFF;
+            --danger: #E74C3C;
+            --success: #2ECC71;
+            --warning: #F1C40F;
+            --gray: #95A5A6;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --transition: all 0.3s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Kanit', sans-serif; }
+        body { background-color: var(--light-color); color: var(--dark-color); display: flex; min-height: 100vh; }
+
+        /* Sidebar Navigation */
+        .sidebar { width: 250px; background: var(--white); box-shadow: var(--shadow); display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 100;}
+        .logo { padding: 2rem 1.5rem; text-align: center; border-bottom: 1px solid #eee; }
+        .logo h2 { color: var(--primary-color); font-size: 1.5rem; font-weight: 600; }
+        .logo i { font-size: 2rem; margin-bottom: 0.5rem; color: var(--secondary-color); }
+        .nav-links { list-style: none; padding: 1.5rem 0; flex-grow: 1; }
+        .nav-link { display: flex; align-items: center; padding: 1rem 1.5rem; color: var(--gray); text-decoration: none; transition: var(--transition); font-weight: 500; }
+        .nav-link i { margin-right: 1rem; width: 20px; text-align: center; font-size: 1.1rem; }
+        .nav-link:hover, .nav-item.active .nav-link { background: rgba(74, 144, 226, 0.1); color: var(--primary-color); border-right: 4px solid var(--primary-color); }
+
+        /* Main Content */
+        .main-content { margin-left: 250px; padding: 2rem; flex-grow: 1; width: calc(100% - 250px); }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; background: var(--white); padding: 1rem 2rem; border-radius: 12px; box-shadow: var(--shadow); }
+        
+        .section-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-end;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .form-group { flex-grow: 1; max-width: 400px; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500;}
+        
+        select.form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            appearance: none;
+            cursor: pointer;
+            background: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%234A90E2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E") no-repeat right 1rem center;
+            background-color: var(--white);
+        }
+
+        /* Result Table Components */
+        .summary-boxes {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .sum-box {
+            padding: 1.5rem;
+            border-radius: 12px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sum-box h4 { font-size: 1rem; font-weight: 400; margin-bottom: 0.5rem; opacity: 0.9;}
+        .sum-box h2 { font-size: 2.2rem; }
+        .sum-box i { font-size: 3rem; opacity: 0.5; }
+
+        .bg-gradient-1 { background: linear-gradient(135deg, #4A90E2, #6AB0F3); }
+        .bg-gradient-2 { background: linear-gradient(135deg, #2ECC71, #50E3C2); }
+        .bg-gradient-3 { background: linear-gradient(135deg, #F39C12, #F1C40F); }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 1.2rem 1rem; text-align: left; border-bottom: 1px solid #eee; }
+        th { background-color: var(--light-color); color: var(--dark-color); font-weight: 600; }
+        
+        .grade-badge {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .grade-4 { background-color: #2ECC71; }
+        .grade-3-5 { background-color: #27AE60; }
+        .grade-3 { background-color: #3498DB; }
+        .grade-2-5 { background-color: #2980B9; }
+        .grade-2 { background-color: #F1C40F; color: #333; }
+        .grade-1-5 { background-color: #E67E22; }
+        .grade-1 { background-color: #D35400; }
+        .grade-0 { background-color: #E74C3C; }
+
+        .empty-state { text-align: center; padding: 3rem; color: var(--gray); }
+        .empty-state i { font-size: 3rem; margin-bottom: 1rem; color: #ddd; }
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <!-- Sidebar identical -->
+        <div class="logo"><i class="fa-solid fa-graduation-cap"></i><h2>EduScore</h2></div>
+        <ul class="nav-links">
+            <li class="nav-item"><a href="index.html" class="nav-link"><i class="fa-solid fa-house"></i><span>หน้าหลัก</span></a></li>
+            <li class="nav-item"><a href="manage.html" class="nav-link"><i class="fa-solid fa-users"></i><span>จัดการข้อมูลพื้นฐาน</span></a></li>
+            <li class="nav-item"><a href="score_entry.html" class="nav-link"><i class="fa-solid fa-pen-to-square"></i><span>บันทึกคะแนน</span></a></li>
+            <li class="nav-item active"><a href="report.html" class="nav-link"><i class="fa-solid fa-chart-pie"></i><span>ระบบรายงานผล</span></a></li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <div class="header">
+            <h1 class="page-title">รายงานผลการเรียน (เกรดรายวิชา)</h1>
+            <div class="user-profile"><span>ยินดีต้อนรับ, คุณครู</span><div class="avatar">T</div></div>
+        </div>
+
+        <div class="section-card">
+            <div class="filter-bar">
+                <div class="form-group">
+                    <label>เลือกวิชาเพื่อดูรายงานผลการเรียน</label>
+                    <select id="subject-selector" class="form-control" onchange="loadReport()">
+                        <option value="">-- กรุณาเลือกรายวิชา --</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="window.print()" style="padding: 0.8rem 1.5rem; border:none; border-radius:8px; background:var(--dark-color); color:white; cursor:pointer;">
+                    <i class="fa-solid fa-print"></i> พิมพ์รายงาน
+                </button>
+            </div>
+
+            <div id="report-section" style="display: none;">
+                <!-- Summaries -->
+                <div class="summary-boxes">
+                    <div class="sum-box bg-gradient-1">
+                        <div>
+                            <h4>นักเรียนทั้งหมด</h4>
+                            <h2 id="r-total-std">0</h2>
+                        </div>
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div class="sum-box bg-gradient-2">
+                        <div>
+                            <h4>คะแนนเฉลี่ย</h4>
+                            <h2 id="r-avg-score">0</h2>
+                        </div>
+                        <i class="fa-solid fa-chart-bar"></i>
+                    </div>
+                    <div class="sum-box bg-gradient-3">
+                        <div>
+                            <h4>ผู้ผ่านเกณฑ์ (เกรด 1 ขึ้นไป)</h4>
+                            <h2 id="r-pass-count">0</h2>
+                        </div>
+                        <i class="fa-solid fa-award"></i>
+                    </div>
+                </div>
+
+                <!-- Table Data -->
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="15%">รหัสนักเรียน</th>
+                            <th width="45%">ชื่อ - นามสกุล</th>
+                            <th width="20%" style="text-align: center;">คะแนนรวม (100)</th>
+                            <th width="20%" style="text-align: center;">เกรดที่ได้</th>
+                        </tr>
+                    </thead>
+                    <tbody id="report-table-body">
+                        <!-- Populated via js -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="empty-selection" class="empty-state">
+                <i class="fa-solid fa-magnifying-glass-chart"></i>
+                <h3>เลือกรายวิชาที่ต้องการตรวจสอบ</h3>
+                <p>ระบบจะดึงคะแนนและประมวลผลเกรดตามเกณฑ์การประเมินโดยอัตโนมัติ</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Use a function to map grade values to specific CSS classes for styling
+        function getGradeClass(grade) {
+            const map = {
+                '4': 'grade-4',
+                '3.5': 'grade-3-5',
+                '3': 'grade-3',
+                '2.5': 'grade-2-5',
+                '2': 'grade-2',
+                '1.5': 'grade-1-5',
+                '1': 'grade-1',
+                '0': 'grade-0'
+            };
+            return map[grade] || 'grade-0';
+        }
+
+        async function loadSubjectDropdown() {
+            try {
+                const res = await fetch('api/subjects.php');
+                const data = await res.json();
+                const selector = document.getElementById('subject-selector');
+                if (data.success) {
+                    data.data.forEach(sub => {
+                        const option = document.createElement('option');
+                        option.value = sub.id;
+                        option.textContent = `[${sub.subject_code}] - ${sub.subject_name}`;
+                        selector.appendChild(option);
+                    });
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function loadReport() {
+            const subjectId = document.getElementById('subject-selector').value;
+            const reportSection = document.getElementById('report-section');
+            const emptyState = document.getElementById('empty-selection');
+            
+            if (!subjectId) {
+                reportSection.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            try {
+                const res = await fetch(`api/scores.php?subject_id=${subjectId}`);
+                const data = await res.json();
+                
+                if (data.success) {
+                    const tbody = document.getElementById('report-table-body');
+                    tbody.innerHTML = '';
+                    
+                    let totalScore = 0;
+                    let passCount = 0;
+                    const studentsCount = data.data.length;
+
+                    if(studentsCount === 0) {
+                        tbody.innerHTML = `<tr><td colspan="4" class="text-center">ไม่พบข้อมูลคะแนนสำหรับวิชานี้</td></tr>`;
+                    } else {
+                        data.data.forEach(std => {
+                            // Accumulators for stat summaries
+                            const score = parseInt(std.score, 10);
+                            totalScore += score;
+                            if (std.grade !== '0' && score >= 50) passCount++;
+
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td><span style="color:#666; font-family:monospace; font-size:1.1rem">${std.student_code}</span></td>
+                                <td>${std.first_name} ${std.last_name}</td>
+                                <td style="text-align: center; font-size:1.1rem; font-weight:500;">
+                                    ${score}
+                                </td>
+                                <td style="text-align: center;">
+                                    <span class="grade-badge ${getGradeClass(std.grade)}">${std.grade}</span>
+                                </td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+                    }
+                    
+                    // Update Summary Boxes
+                    document.getElementById('r-total-std').textContent = studentsCount;
+                    const avg = studentsCount > 0 ? (totalScore / studentsCount).toFixed(2) : 0;
+                    document.getElementById('r-avg-score').textContent = avg;
+                    document.getElementById('r-pass-count').textContent = passCount;
+
+                    emptyState.style.display = 'none';
+                    reportSection.style.display = 'block';
+                }
+            } catch (err) {
+                console.error("Error fetching report", err);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadSubjectDropdown);
+    </script>
+</body>
+</html>
